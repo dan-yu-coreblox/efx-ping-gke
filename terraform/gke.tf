@@ -1,3 +1,9 @@
+# GCP Project
+provider "google" {
+  project = var.project_id
+  region = var.region
+}
+
 # GKE Cluster
 resource "google_container_cluster" "primary" {
   name = "efx-ping-gke-cluster-us-east"
