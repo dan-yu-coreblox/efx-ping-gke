@@ -9,7 +9,7 @@ resource "google_container_cluster" "primary" {
   name = "efx-ping-gke-cluster-us-east"
   location = var.region
   
-  reomve_default_node_pool = true
+  remove_default_node_pool = true
   initial_node_count = 1
   
   network = var.network
