@@ -6,7 +6,7 @@ provider "google" {
 
 # GKE Cluster
 resource "google_container_cluster" "primary" {
-  name = "efx-ping-gke-cluster-us-east"
+  name = var.cluster_name
   location = var.region
   
   remove_default_node_pool = true
@@ -60,7 +60,7 @@ resource "google_container_node_pool" "primary_nodes" {
     # preemptible = true
     disk_type = "pd-ssd"
     machine_type = "e2-standard-2"
-    tags = ["gke-node", "efx-ping-gke-cluster-us-east"]
+    tags = ["gke-node", var.cluster_name]
     metadata = {
       disable-legacy-endpoints = "true"
     }
