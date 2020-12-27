@@ -21,6 +21,17 @@ resource "google_container_cluster" "primary" {
   node_config {
     service_account = var.service_account
   }
+  
+  private_cluster_config {
+    enable_private_nodes = true
+    enable_private_endpoint = false
+    master_ipv4_cidr_block = "10.0.1.0/24"
+  }
+  
+  ip_allocation_policy {
+    cluster_secondary_range_name = "pods"
+    services_secondary_range_name = "services"
+  }
 }
 
 # Separately Managed Node Pool
@@ -36,13 +47,14 @@ resource "google_container_node_pool" "primary_nodes" {
       "https://www.googleapis.com/auth/monitoring"
     ]
     
-    label = {
+    labels = {
       env = var.project_id
     }
     
     # preemptible = true
-    machine_type = "n1-standard-1"
-    tags = ["gke-node", "efx-ping-gke-us-east"]
+    disk_type = "pd-ssd"
+    machine_type = "e2-standard-2"
+    tags = ["gke-node", "efx-ping-gke-cluster-us-east"]
     metadata = {
       disable-legacy-endpoints = "true"
     }
