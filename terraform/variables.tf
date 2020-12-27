@@ -6,6 +6,10 @@ variable "region" {
   description = "Region"
 }
 
+variable "cluster_name" {
+  description = "Cluster Name"
+}
+
 variable "network" {
   description = "Network for GKE Cluster"
 }
