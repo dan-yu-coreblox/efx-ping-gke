@@ -1,0 +1,113 @@
+apiVersion: v1
+data:
+  CLUSTER_BIND_ADDRESS: NON_LOOPBACK
+  CLUSTER_NAME: K8S_PF_CLUSTER
+  DISCOVERY_INITIAL_HOST: 10.0.4.12[7600],10.0.4.6[7600],10.0.4.3[30200],10.0.4.4[30200],10.0.4.11[30200]
+  OPERATIONAL_MODE: CLUSTERED_ENGINE
+  PING_IDENTITY_ACCEPT_EULA: "YES"
+  SERVER_PROFILE_GETTING_STARTED_PATH: getting-started/pingfederate
+  SERVER_PROFILE_GETTING_STARTED_URL: https://github.com/pingidentity/pingidentity-server-profiles.git
+  SERVER_PROFILE_PARENT: GETTING_STARTED
+  SERVER_PROFILE_PATH: pingfederate
+  SERVER_PROFILE_URL: https://github.com/dan-yu-coreblox/efx-ping-gke.git
+kind: ConfigMap
+metadata:
+  name: pingfederate-engine-environment-variables
+---
+apiVersion: v1
+data:
+  pingfederate.lic: SUQ9MTYxMDQwNQ0KT3JnYW5pemF0aW9uPUNvcmVCbG94LCBJbmMuDQpQcm9kdWN0PVBpbmdGZWRlcmF0ZQ0KVmVyc2lvbj0xMC4wDQpJc3N1ZURhdGU9MjAyMC0wMi0yNA0KVGllcj1TdWJzY3JpcHRpb24NCkV4cGlyYXRpb25EYXRlPTIwMjItMTEtMTQNCkVuZm9yY2VtZW50VHlwZT0zDQpTYWFzUHJvdmlzaW9uaW5nPXRydWUNCldTVHJ1c3RTVFM9dHJ1ZQ0KT0F1dGg9dHJ1ZQ0KR2VuZXJhdG9yPVdlYkFQSQ0KU2lnbkNvZGU9RkYwRg0KU2lnbmF0dXJlPTMwMkUwMjE1MDA4NkRCOTNDOTA4ODM4QUQ2NEFGRTlBMThDOTc0QzZDNDU3MkNBRTQyMDIxNTAwOEQ5M0RGQTQ2NzRCNEFDQzYxNTBDN0RENjg4MzcwQUNCOTMxRTJDMg==
+kind: Secret
+metadata:
+  name: pingfederate-license
+type: Opaque
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    role: pingfederate
+  name: pingfederate
+spec:
+  ports:
+  - name: pf-runtime
+    port: 9031
+  selector:
+    role: pingfederate
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    role: pingfederate
+  name: pingfederate-replication
+spec:
+  ports:
+  - name: pf-replication
+    nodePort: 30200
+    port: 7600
+  selector:
+    role: pingfederate
+  type: NodePort
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    role: pingfederate
+  name: pingfederate
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      role: pingfederate
+  template:
+    metadata:
+      labels:
+        role: pingfederate
+        version: "0.1"
+      name: pingfederate
+    spec:
+      containers:
+      - envFrom:
+        - configMapRef:
+            name: pingfederate-engine-environment-variables
+        - secretRef:
+            name: devops-secret
+            optional: true
+        image: pingidentity/pingfederate:edge
+        imagePullPolicy: Always
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - /bin/sh
+              - -c
+              - sleep 20
+        name: pingfederate
+        ports:
+        - containerPort: 9031
+        - containerPort: 7600
+        readinessProbe:
+          httpGet:
+            path: /pf/heartbeat.ping
+            port: 9031
+            scheme: HTTPS
+          initialDelaySeconds: 100
+          periodSeconds: 10
+        resources:
+          limits:
+            cpu: "1"
+            memory: 1.5Gi
+          requests:
+            cpu: "1"
+            memory: 1.5Gi
+        volumeMounts:
+        - mountPath: /opt/in/instance/server/default/conf/pingfederate.lic
+          name: product-license-volume
+          readOnly: true
+          subPath: pingfederate.lic
+      volumes:
+      - name: product-license-volume
+        secret:
+          secretName: pingfederate-license

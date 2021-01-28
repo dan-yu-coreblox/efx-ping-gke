@@ -1,0 +1,14 @@
+ID=1610405
+Organization=CoreBlox, Inc.
+Product=PingFederate
+Version=10.0
+IssueDate=2020-02-24
+Tier=Subscription
+ExpirationDate=2022-11-14
+EnforcementType=3
+SaasProvisioning=true
+WSTrustSTS=true
+OAuth=true
+Generator=WebAPI
+SignCode=FF0F
+Signature=302E02150086DB93C908838AD64AFE9A18C974C6C4572CAE420215008D93DFA4674B4ACC6150C7DD688370ACB931E2C2

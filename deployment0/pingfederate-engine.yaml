@@ -1,0 +1,86 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: pingfederate
+  labels:
+    role: pingfederate
+spec:
+  ports:
+    - port: 9031
+      name: pf-runtime
+  selector:
+    role: pingfederate
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pingfederate-replication
+  labels:
+    role: pingfederate
+spec:
+  ports:
+    - port: 7600
+      name: pf-replication
+      nodePort: 30200
+  selector:
+    role: pingfederate
+  type: NodePort
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pingfederate
+  labels:
+    role: pingfederate
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      role: pingfederate
+  template:
+    metadata:
+      name: pingfederate
+      labels:
+        role: pingfederate
+        version: "0.1"
+    spec:
+      containers:
+      - name: pingfederate
+        image: pingidentity/pingfederate:edge
+        imagePullPolicy: Always
+        envFrom:
+        - configMapRef:
+            name: pingfederate-engine-environment-variables
+        - secretRef:
+            name: devops-secret
+            optional: true
+        ports:        
+        - containerPort: 9031
+        - containerPort: 7600
+        readinessProbe:
+          httpGet:
+            path: /pf/heartbeat.ping
+            port: 9031
+            scheme: HTTPS
+          initialDelaySeconds: 100
+          periodSeconds: 10
+        lifecycle:
+          preStop:
+            exec:
+              command: ["/bin/sh","-c","sleep 20"]
+        resources:
+          limits:
+            cpu: "1"
+            memory: 1.5Gi
+          requests:
+            cpu: "1"
+            memory: 1.5Gi
+        volumeMounts:
+          - name: product-license-volume
+            mountPath: "/opt/in/instance/server/default/conf/pingfederate.lic"
+            subPath: pingfederate.lic
+            readOnly: true
+      volumes:
+        - name: product-license-volume
+          secret:
+            secretName: pingfederate-license
