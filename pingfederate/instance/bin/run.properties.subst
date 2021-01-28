@@ -11,7 +11,7 @@
 #
 # This property defines the port on which the PingFederate administrative 
 # console and API runs. Default is 9999.
-pf.admin.https.port=
+pf.admin.https.port=9999
 
 #
 # This property defines the host name of this machine that will be used in
@@ -205,7 +205,7 @@ pf.heartbeat.system.monitoring=false
 #                       protocol engine. 
 # Note: Only one node in a cluster can run the administrative console.
 # Default is STANDALONE.
-pf.operational.mode=CLUSTERED_ENGINE
+pf.operational.mode=${OPERATIONAL_MODE}
 
 # The following properties apply only if "pf.operational.mode" 
 # is *not* STANDALONE:
@@ -224,7 +224,7 @@ pf.cluster.encryption.keysize=128
 
 # Specify the IP address for cluster communication, or leave as NON_LOOPBACK to 
 # allow the system to choose an available non-loopback IP address.
-pf.cluster.bind.address=NON_LOOPBACK
+pf.cluster.bind.address=${CLUSTER_BIND_ADDRESS}
 pf.cluster.bind.port=7600
 pf.cluster.failure.detection.bind.port=7700
 
@@ -245,8 +245,8 @@ pf.cluster.mcast.group.port=7601
 # discovery mechanisms are available. See server/default/conf/tcp.xml for 
 # further details. If a dynamic discovery mechanism is used, this property
 # is ignored.
-# pf.cluster.tcp.discovery.initial.hosts=10.0.4.12[7600],10.0.4.6[7600],10.0.4.3[30200]
-pf.cluster.tcp.discovery.initial.hosts=10.0.4.12[7600],10.0.4.6[7600]
+pf.cluster.tcp.discovery.initial.hosts=10.0.4.12[7600],10.0.4.6[7600],10.0.4.3[30200]
+# pf.cluster.tcp.discovery.initial.hosts=10.0.4.12[7600],10.0.4.6[7600]
 
 # This property enables/disables adaptive clustering. Please see the 
 # PingFederate clustering guide for more information on this capability.
