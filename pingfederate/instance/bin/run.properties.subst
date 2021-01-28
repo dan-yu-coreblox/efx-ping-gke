@@ -245,7 +245,7 @@ pf.cluster.mcast.group.port=7601
 # discovery mechanisms are available. See server/default/conf/tcp.xml for 
 # further details. If a dynamic discovery mechanism is used, this property
 # is ignored.
-pf.cluster.tcp.discovery.initial.hosts=10.0.4.12[7600],10.0.4.6[7600],10.0.4.3[30200],10.0.4.4[30200],10.0.4.11[30200]
+pf.cluster.tcp.discovery.initial.hosts=${DISCOVERY_INITIAL_HOST}
 # pf.cluster.tcp.discovery.initial.hosts=10.0.4.12[7600],10.0.4.6[7600],10.0.4.3[30200]
 # pf.cluster.tcp.discovery.initial.hosts=10.0.4.12[7600],10.0.4.6[7600]
 
